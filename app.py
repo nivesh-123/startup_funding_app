@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-fund = pd.read_csv(r"/home/nivesh/startup_funding_project_streamlit/startup_funding.csv")
-fund['Investors Name'] = fund['Investors Name'].fillna('Undisclosed')
+fund = pd.read_csv(r"/home/nivesh/startup_funding_project_streamlit/data/fund_cleaned.csv")
+fund_investor = pd.read_csv(r"/home/nivesh/startup_funding_project_streamlit/data/fund_investor.csv")
 
 # design of side bar
 st.sidebar.title('Startup Funding Analysis')
