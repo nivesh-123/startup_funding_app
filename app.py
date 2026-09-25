@@ -12,12 +12,12 @@ option = st.sidebar.selectbox('Select Analysis type',['Overall analysis','Startu
 if option == 'Overall analysis':
     st.title('Overall analysis')
 elif option == 'Startup analysis':
-    startup = st.sidebar.selectbox('Select the startup',sorted(fund['city_clean'].unique().tolist()))
+    startup = st.sidebar.selectbox('Select the startup',sorted(fund['startup_clean'].unique().tolist()))
     btn1 = st.sidebar.button('perform analysis')
     if btn1:
         st.title('Startup Analysis')
 else:
-    investor = st.sidebar.selectbox('Select the Investor',sorted(set(fund['investor_clean'].sum())))
+    investor = st.sidebar.selectbox('Select the Investor',sorted(fund_investor['investor_clean'].unique().tolist()))
     btn2 = st.sidebar.button('perform analysis')
     if btn2:
         st.title('Investor Analysis')
