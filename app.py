@@ -93,8 +93,36 @@ def investor_details(investor):
             req_vertical = temp_df[temp_df['investor_clean'] == investor]['vertical'].values[0]
             temp_series = temp_df[temp_df['vertical'] == req_vertical]['investor_clean'].head()
             st.markdown("\n".join([f"* **{item}**"for item in temp_series]))
+            
+# create a function for overall analysis
+def overall_analysis():
+    st.title('Overall Analysis')
+    # create four cards
+    col1,col2,col3,col4 = st.columns(4)
+    with col1:
+        st.metric(label='Total investment',value = f"₹ {round(fund['amount'].sum()):,} Cr")
+    with col2:
+        st.metric(label='Max investment',value = f"₹ {round(fund['amount'].max()):,} Cr")
+    with col3:
+        st.metric(label='Avg. investment',value = f"₹ {round(fund['amount'].mean()):,} Cr")
+    with col4:
+        st.metric(label='No of investments',value = f"{fund['amount'].count():,}")
+    # Quarter over Quarter investment
+    temp = fund.groupby(['year','quarter'])['amount'].sum().reset_index(drop=False)
+    temp_xaxis = temp['quarter'].astype('str') + '-' + temp['year'].astype('str')
+    temp_yaxis = round(temp['amount'])
+    fig1,ax1 = plt.subplots(figsize=(6,4))
+    ax1.plot(temp_xaxis,temp_yaxis,marker='o',markersize=3)
+    ax1.set_ylabel('Invested amount (Cr rupees)')
+    ax1.set_xlabel('Quarter-Year')
+    ax1.grid(True,alpha=0.2)
+    ax1.tick_params(axis='x', rotation=75)
+    st.pyplot(fig1,width='content')
+    
 if option == 'Overall analysis':
-    st.title('Overall analysis')
+    btn0 = st.sidebar.button('Perform Analysis')
+    if btn0:
+        overall_analysis()
 elif option == 'Startup analysis':
     startup = st.sidebar.selectbox('Select the startup',sorted(fund['startup_clean'].unique().tolist()))
     btn1 = st.sidebar.button('perform analysis')
