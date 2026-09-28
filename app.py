@@ -28,8 +28,8 @@ st.set_page_config(layout='wide',page_title="Funding analysis App")
 # import the cleaned dataset and change datatypes and add required columns
 # =========================================================
 
-fund = pd.read_csv(r"/home/nivesh/startup_funding_project_streamlit/data/fund_cleaned_final.csv")
-fund_investor = pd.read_csv(r"/home/nivesh/startup_funding_project_streamlit/data/fund_investor_final.csv")
+fund = pd.read_csv(r"data/fund_cleaned_final.csv")
+fund_investor = pd.read_csv(r"data/fund_investor_final.csv")
 fund['date'] = pd.to_datetime(fund['date'],errors='coerce')
 fund_investor['date'] = pd.to_datetime(fund_investor['date'],errors='coerce')
 
