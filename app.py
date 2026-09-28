@@ -3,8 +3,30 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 
+
+# =========================================================
+# 1. INITIALIZATION ZONE (Always at the very top!)
+# =========================================================
+# set all the memory flags for different options
+
+if 'show_overall' not in st.session_state:
+    st.session_state['show_overall'] = False
+
+if 'show_startup' not in st.session_state:
+    st.session_state['show_startup'] = False
+
+if 'show_investor' not in st.session_state:
+    st.session_state['show_investor'] = False
+
+# =========================================================
 # set the page config
+# =========================================================
+
 st.set_page_config(layout='wide',page_title="Funding analysis App")
+
+# =========================================================
+# import the cleaned dataset and change datatypes and add required columns
+# =========================================================
 
 fund = pd.read_csv(r"/home/nivesh/startup_funding_project_streamlit/data/fund_cleaned_final.csv")
 fund_investor = pd.read_csv(r"/home/nivesh/startup_funding_project_streamlit/data/fund_investor_final.csv")
@@ -28,11 +50,10 @@ fund_investor['quarter'] = fund_investor['date'].dt.quarter
 fund['date'] = fund['date'].dt.date 
 fund_investor['date'] = fund_investor['date'].dt.date 
 
-# design of side bar
-st.sidebar.title('Startup Funding Analysis')
-option = st.sidebar.selectbox('Select Analysis type',['Overall analysis','Startup analysis','Investor analysis'])
-
+# =========================================================
 # function for investor analysis
+# =========================================================
+
 def investor_details(investor):
     # get the name of the investor
     st.title(investor.upper())
@@ -94,7 +115,10 @@ def investor_details(investor):
             temp_series = temp_df[temp_df['vertical'] == req_vertical]['investor_clean'].head()
             st.markdown("\n".join([f"* **{item}**"for item in temp_series]))
             
-# create a function for overall analysis
+# =========================================================
+# function for overall analysis
+# =========================================================
+
 def overall_analysis():
     st.title('Overall Analysis')
     # create four cards
@@ -107,29 +131,65 @@ def overall_analysis():
         st.metric(label='Avg. investment',value = f"₹ {round(fund['amount'].mean()):,} Cr")
     with col4:
         st.metric(label='No of investments',value = f"{fund['amount'].count():,}")
+    selected_option = st.selectbox('Select type',['Total','Count'])
+    if selected_option == 'Total':
+        temp = fund.groupby(['year','quarter'])['amount'].sum().reset_index(drop=False)
+    else:
+        temp = fund.groupby(['year','quarter'])['amount'].count().reset_index(drop=False)
     # Quarter over Quarter investment
-    temp = fund.groupby(['year','quarter'])['amount'].sum().reset_index(drop=False)
     temp_xaxis = temp['quarter'].astype('str') + '-' + temp['year'].astype('str')
     temp_yaxis = round(temp['amount'])
     fig1,ax1 = plt.subplots(figsize=(6,4))
     ax1.plot(temp_xaxis,temp_yaxis,marker='o',markersize=3)
-    ax1.set_ylabel('Invested amount (Cr rupees)')
     ax1.set_xlabel('Quarter-Year')
     ax1.grid(True,alpha=0.2)
     ax1.tick_params(axis='x', rotation=75)
     st.pyplot(fig1,width='content')
+
+# =========================================================
+# design of side bar
+# =========================================================
+
+st.sidebar.title('Startup Funding Analysis')
+option = st.sidebar.selectbox('Select Analysis type',['Overall analysis','Startup analysis','Investor analysis'])
+
+# =========================================================    
+# resetting the session state variables
+# =========================================================
+if option != 'Overall analysis': st.session_state['show_overall'] = False
+if option != 'Startup analysis': st.session_state['show_startup'] = False
+if option != 'Investor analysis': st.session_state['show_investor'] = False
+
+# =========================================================    
+# Main routing and rendering block
+# =========================================================
     
 if option == 'Overall analysis':
+    # render the button
     btn0 = st.sidebar.button('Perform Analysis')
     if btn0:
+        st.session_state['show_overall'] = True
+    if st.session_state.get('show_overall',False):
         overall_analysis()
+        
 elif option == 'Startup analysis':
+    # render the dropdown in the startup column
     startup = st.sidebar.selectbox('Select the startup',sorted(fund['startup_clean'].unique().tolist()))
+    # render the button
     btn1 = st.sidebar.button('perform analysis')
+    
     if btn1:
-        st.title('Startup Analysis')
+        st.session_state['show_startup'] = True
+    if st.session_state.get('show_startup',False):
+        pass
 else:
+    # render the dropdown in the investor column
     investor = st.sidebar.selectbox('Select the Investor',sorted(fund_investor['investor_clean'].unique().tolist()))
+    # render the button
     btn2 = st.sidebar.button('Get investor details')
+    
     if btn2:
+        st.session_state['show_investor'] = True
+    if st.session_state.get('show_investor',False):
         investor_details(investor)
+        
